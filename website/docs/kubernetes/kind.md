@@ -6,50 +6,23 @@ keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Running Kubernetes on your workstation with Kind and Podman
 
 [Kind](https://kind.sigs.k8s.io/) is a command line tool for running local Kubernetes clusters on a container engine, such as Podman.
 
-## Running Kind on Windows Subsystem for Linux (WSL)
+## Configuring Podman for Kind on Windows Subsystem for Linux (WSL) {#configuring}
 
 When you create a Podman machine, Podman creates two system connections:
 
-* A rootless connection, which is the default.
+* The default rootless connection.
 * A rootful connection, which has a `-root` suffix.
 
-Kind uses the default Podman connection.
+Kind:
 
-Due to incompatibilities between WSL and systemd, Kind does not work with the [rootless mode](https://docs.podman.io/en/latest/markdown/podman.1.html#rootless-mode).
+* Uses the default Podman connection.
+* Requires the rootful connection.
 
-Therefore, set the default connection to rootful.
-
-### Creating a Podman machine ready to run Kind
-
-Create a rootful Podman machine.
-It does not require additional configuration.
-
-#### Prerequisites
-
-* No existing Podman machine
-
-#### Procedure
-
-* Create a rootful Podman machine:
-
-  ```shell-session
-  $ podman machine init --rootful my-machine-name
-  ```
-
-#### Next steps
-
-* [Create your Kind cluster](#kind-create-cluster)
-
-### Configuring an existing Podman machine to run Kind
-
-Set the Podman machine default connection to rootful.
+Therefore, set the Podman machine default connection to rootful.
 
 #### Procedure
 
@@ -73,66 +46,36 @@ Set the Podman machine default connection to rootful.
 
 #### Prerequisites
 
-* Podman
-* [Kind](https://kind.sigs.k8s.io/)
+* [You configured Podman](#configuring).
+* [You installed Kind](https://kind.sigs.k8s.io/).
 
 #### Procedure
 
-* Create a Kubernetes cluster
+* Create a Kind cluster
 
    ```shell-session
    $ kind create cluster
    ```
+## Deleting a Kubernetes cluster with Kind {#kind-delete-cluster}
 
-## Stopping your Kind cluster {#stopping-kind}
+#### Prerequisites
 
-Stop your Kind container before stopping the Podman machine, to avoid connection errors after restart.
+* [You configured Podman](#configuring).
+* [You installed Kind](https://kind.sigs.k8s.io/).
 
 #### Procedure
 
-1. Go to **Containers**.
-2. Search containers: `control-plane`, and identify your Kind cluster in  the list.
-3. Click the **Stop Container** button.
+* Delete the Kind cluster
 
-#### Next steps
-
-1. Stop the Podman machine or reboot your computer.
-2. [Restart your Kind cluster](#restarting-kind).
+   ```shell-session
+   $ kind delete cluster
+   ```
 
 ## Restarting your Kind cluster {#restarting-kind}
 
 Kind has no command to restart a cluster.
-However, you can stop and start the container containing your Kind cluster.
 
-#### Prerequisites
+#### Workaround
 
-* [You stopped the Kind container before stopping the Podman machine](#stopping-kind).
-
-#### Procedure 
-
-1. Go to **Containers**.
-2. Search containers: `control-plane`, and identify your Kind cluster in  the list.
-3. Click the **Start Container** button.
-4. Get your Kubernetes context list, and identify your Kind cluster in the list: it has a `kind-` prefix:
-
-   ```shell-session
-   $ kubectl config get-contexts
-   ```
-
-5. Set your Kubernetes context to your Kind cluster:
-
-   ```shell-session
-   $ kubectl config use-context kind-<cluster_name>
-   ```
-
-#### Verification
-
-* List all namespaces from the Kind cluster:
-
-  ```shell-session
-  $ kubectl get ns
-  ```
-
-
-
-
+* Consider [deleting your Kind cluster](#kind-delete-cluster), and [creating a Kind cluster](#kind-create-cluster).
+* Consider replacing Kind by OpenShift Local.
