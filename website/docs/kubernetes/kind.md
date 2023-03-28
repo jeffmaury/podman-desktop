@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Kind support
+title: Kind
 description: Kind is one way to get Kubernetes running on your workstation.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]
@@ -17,7 +17,7 @@ When you create a Podman machine, Podman creates two system connections:
 * The default rootless connection.
 * A rootful connection, which has a `-root` suffix.
 
-Kind:
+With a Podman machine running on WSL, Kind:
 
 * Uses the default Podman connection.
 * Requires the rootful connection.
@@ -42,7 +42,7 @@ Therefore, set the Podman machine default connection to rootful.
 
 * [Create your Kind cluster](#kind-create-cluster)
 
-## Creating a Kubernetes cluster with Kind {#kind-create-cluster}
+## Creating a local Kubernetes cluster with Kind {#kind-create-cluster}
 
 #### Prerequisites
 
@@ -56,7 +56,30 @@ Therefore, set the Podman machine default connection to rootful.
    ```shell-session
    $ kind create cluster
    ```
-## Deleting a Kubernetes cluster with Kind {#kind-delete-cluster}
+
+#### Next steps
+
+* [Work with your Kind cluster](#set-current-context)
+
+## Working with your local Kind-powered Kubernetes cluster {#set-current-context}
+
+Set your Kubernetes context to your local Kind-powered Kubernetes cluster.
+
+#### Procedure
+
+1. Open the Podman Desktop tray.
+2. Go to **Kubernetes**.
+3. Click on the Kubernetes context with the `kind` suffix.
+
+#### Verification
+
+* The Kubernetes CLI reports that the current context is your cluster with the `kind` suffix:
+
+   ```shell-session
+   $ kubectl config current-context
+   ```
+
+## Deleting a local Kubernetes cluster with Kind {#kind-delete-cluster}
 
 #### Prerequisites
 
@@ -71,11 +94,12 @@ Therefore, set the Podman machine default connection to rootful.
    $ kind delete cluster
    ```
 
-## Restarting your Kind cluster {#restarting-kind}
+## Restarting your local Kubernetes cluster with Kind {#restarting-kind}
 
 Kind has no command to restart a cluster.
 
+
 #### Workaround
 
+* Consider replacing Kind with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
 * Consider [deleting your Kind cluster](#kind-delete-cluster), and [creating a Kind cluster](#kind-create-cluster).
-* Consider replacing Kind by OpenShift Local.
