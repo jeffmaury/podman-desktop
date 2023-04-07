@@ -21,4 +21,4 @@ jobs:
           current-tag: ${{ github.event.inputs.release-version }}
           types-mapping: 'feat:Features,fix:Bug Fixes,docs:Documentation,refactor:Refactoring,chore:Other'
       - run: |
-          echo '${{ steps.changelog.outputs.changelog }}'
+          echo "${{ steps.changelog.outputs.changelog }}"
