@@ -1,0 +1,24 @@
+name: Generate changelog and plugin archive for new release
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'The release version'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Simple conventional changelog
+        uses: lstocchi/simple-conventional-changelog@13071c09073f5deddf03d44d9af6a8b0f81ef227 #0.0.11
+        id: changelog
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          current-tag: ${{ github.event.inputs.release-version }}
+          types-mapping: 'feat:Features,fix:Bug Fixes,docs:Documentation,refactor:Refactoring,chore:Other'
+      - run: |
+          echo '${{ steps.changelog.outputs.changelog }}'
