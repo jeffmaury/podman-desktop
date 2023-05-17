@@ -155,7 +155,7 @@ jobs:
         run: yarn compile:pull-request
 
       - name: List Build
-        run: ls -la ./dist/
+        run: ls -laR ./dist/
 
       - uses: actions/upload-artifact@v3.1.2
         with:
