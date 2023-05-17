@@ -158,7 +158,7 @@ jobs:
         run: ls -laR ./dist/
 
       - name: Dump ASAR
-        run: npm run asar l ./dist/mac-universal/Podman Desktop.app/Contents/Resources/app.asar
+        run: npm exec asar l ./dist/mac-universal/Podman Desktop.app/Contents/Resources/app.asar
 
       - uses: actions/upload-artifact@v3.1.2
         with:
