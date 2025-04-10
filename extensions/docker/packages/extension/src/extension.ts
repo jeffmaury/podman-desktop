@@ -27,6 +27,7 @@ import { getDockerInstallation } from './docker-cli';
 import { DockerCompatibilitySetup } from './docker-compatibility-setup';
 import { DockerConfig } from './docker-config';
 import { DockerContextHandler } from './docker-context-handler';
+import { DockerContextSynchronizer } from './docker-context-synchronizer';
 
 let stopLoop = false;
 let socketPath: string;
@@ -175,6 +176,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const dockerCompatibilitySetup = new DockerCompatibilitySetup(dockerContextHandler);
   dockerCompatibilitySetup.init().catch((err: unknown) => {
     console.error('Error while initializing docker compatibility setup', err);
+  });
+  const dockerSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+  extensionContext.subscriptions.push(dockerSynchronizer);
+  dockerSynchronizer.init().catch((err: unknown) => {
+    console.error('Error while initializing docker synchronizer', err);
   });
 
   // monitor daemon
