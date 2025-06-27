@@ -906,6 +906,7 @@ export class ContextsManager {
       if (err !== undefined) {
         console.debug(
           `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s.`,
+          err,
         );
         options.onConnectionError?.(String(err));
       }
@@ -1005,6 +1006,7 @@ export class ContextsManager {
       if (err !== undefined) {
         console.debug(
           `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${Math.round(nextTimeout / 1000)}s.`,
+          err,
         );
         options.onConnectionError?.(String(err));
       }
