@@ -18,9 +18,9 @@
 
 import type { ContainerProviderConnection, ProviderContainerConnection } from '@podman-desktop/api';
 import { env, provider } from '@podman-desktop/api';
+import type { DockerExtensionApi } from '@podman-desktop/docker-extension-api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { DockerContextHandler } from './docker-context-handler';
 import {
   DockerContextSynchronizer,
   toDescription,
@@ -79,10 +79,10 @@ const PODMAN_CONNECTION2 = {
   },
 } as unknown as ProviderContainerConnection;
 
-const dockerContextHandler = {
+const dockerExtensionAPI: DockerExtensionApi = {
   createContext: vi.fn(),
   removeContext: vi.fn(),
-} as unknown as DockerContextHandler;
+};
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -150,48 +150,48 @@ describe('toEndpoint', () => {
 describe('create contexts', () => {
   test('should not create contexts if no connection', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([]);
-    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).not.toHaveBeenCalled();
+    expect(dockerExtensionAPI.createContext).not.toHaveBeenCalled();
   });
 
   test('should not create contexts if only docker connections', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([DOCKER_CONNECTION]);
-    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).not.toHaveBeenCalled();
+    expect(dockerExtensionAPI.createContext).not.toHaveBeenCalled();
   });
 
   test('should create context if single podman connection', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([PODMAN_CONNECTION1]);
-    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).toHaveBeenCalledOnce();
+    expect(dockerExtensionAPI.createContext).toHaveBeenCalledOnce();
   });
 
   test('should create context if podman and docker connections', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([DOCKER_CONNECTION, PODMAN_CONNECTION1]);
-    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).toHaveBeenCalledOnce();
+    expect(dockerExtensionAPI.createContext).toHaveBeenCalledOnce();
   });
 
   test('should create contexts if several podman connections', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([PODMAN_CONNECTION1, PODMAN_CONNECTION2]);
-    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new DockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).toHaveBeenCalledTimes(2);
+    expect(dockerExtensionAPI.createContext).toHaveBeenCalledTimes(2);
   });
 });
 
 describe('delete context', () => {
   test('should delete context if podman connection is removed', async () => {
     vi.mocked(provider.getContainerConnections).mockReturnValue([PODMAN_CONNECTION1, PODMAN_CONNECTION2]);
-    const dockerContextSynchronizer = new TestDockerContextSynchronizer(dockerContextHandler);
+    const dockerContextSynchronizer = new TestDockerContextSynchronizer(dockerExtensionAPI);
     await dockerContextSynchronizer.init();
-    expect(dockerContextHandler.createContext).toHaveBeenCalledTimes(2);
+    expect(dockerExtensionAPI.createContext).toHaveBeenCalledTimes(2);
     vi.mocked(PODMAN_CONNECTION2.connection.status).mockReturnValue('stopped');
     await dockerContextSynchronizer.processUpdatedConnection(PODMAN_CONNECTION2.connection);
-    expect(dockerContextHandler.removeContext).toHaveBeenCalledTimes(1);
+    expect(dockerExtensionAPI.removeContext).toHaveBeenCalledTimes(1);
   });
 });

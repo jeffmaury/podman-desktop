@@ -17,8 +17,7 @@
  ***********************************************************************/
 import type { ContainerProviderConnection, Disposable } from '@podman-desktop/api';
 import { env, provider } from '@podman-desktop/api';
-
-import type { DockerContextHandler } from './docker-context-handler';
+import type { DockerExtensionApi } from '@podman-desktop/docker-extension-api';
 
 export function toDockerContextName(name: string): string {
   return env.isWindows ? (name.startsWith('podman-') ? name : `podman-${name}`) : 'podman';
@@ -35,7 +34,7 @@ export function toEndpoint(socketPath: string): string {
 export class DockerContextSynchronizer implements Disposable {
   #disposable: Disposable[] = [];
 
-  constructor(private dockerContextHandler: DockerContextHandler) {
+  constructor(private dockerExtensionAPI: DockerExtensionApi) {
     this.#disposable.push(
       provider.onDidUpdateContainerConnection(event => this.processUpdatedConnection(event.connection)),
     );
@@ -57,7 +56,7 @@ export class DockerContextSynchronizer implements Disposable {
     if (connection.type === 'podman') {
       if (connection.status() === 'started') {
         try {
-          await this.dockerContextHandler.createContext({
+          await this.dockerExtensionAPI.createContext({
             name: toDockerContextName(connection.name),
             metadata: { description: toDescription(connection.name) },
             endpoints: { docker: { host: toEndpoint(connection.endpoint.socketPath) } },
@@ -68,7 +67,7 @@ export class DockerContextSynchronizer implements Disposable {
       } else if (connection.status() === 'stopped') {
         const dockerContextName = toDockerContextName(connection.name);
         try {
-          await this.dockerContextHandler.removeContext(dockerContextName);
+          await this.dockerExtensionAPI.removeContext(dockerContextName);
         } catch (error: unknown) {
           console.warn(`Error removing Docker context ${dockerContextName}`, error);
         }
